@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taha Alkhawtani | Software Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1d1a;
+            --bg-surface: #242824;
+            --bg-terminal: #1e221e;
+            --accent: #4ade80;
+            --accent-dim: #22c55e;
+            --accent-glow: rgba(74, 222, 128, 0.15);
+            --text-primary: #e8ebe8;
+            --text-secondary: #a3a8a3;
+            --text-dim: #6b726b;
+            --border: #3d443d;
+            --gradient-1: #1a1d1a;
+            --gradient-2: #151815;
+            --code-color: #4ade80;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8faf8;
+            --bg-surface: #ffffff;
+            --bg-terminal: #f0f4f0;
+            --accent: #2e7d32;
+            --accent-dim: #388e3c;
+            --accent-glow: rgba(46, 125, 50, 0.1);
+            --text-primary: #1b2e1b;
+            --text-secondary: #4a5a4a;
+            --text-dim: #6b7c6b;
+            --border: #c8d4c8;
+            --gradient-1: #f8faf8;
+            --gradient-2: #edf3ed;
+            --code-color: #2e7d32;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 50%, var(--gradient-1) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.5s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .code-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .code-line {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            opacity: 0.12;
+            white-space: nowrap;
+            animation: float 25s infinite linear;
+            color: var(--code-color);
+            font-weight: 500;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            8% { opacity: 0.12; }
+            92% { opacity: 0.12; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .profile-box {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-placeholder {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .profile-name {
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .profile-title {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { box-shadow: 0 0 0 8px var(--accent-glow); }
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .info-item svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .social-link svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+            transition: fill 0.3s ease;
+        }
+
+        .social-link:hover svg {
+            fill: var(--bg-primary);
+        }
+
+        .theme-toggle {
+            margin-top: auto;
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--accent);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-title::before {
+            content: '>';
+            color: var(--accent);
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        .terminal-window {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .terminal-header {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca40; }
+
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .terminal-body {
+            padding: 30px;
+        }
+
+        #intro .terminal-body {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        #intro .terminal-body .highlight {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        #intro .terminal-body .keyword {
+            color: var(--accent);
+        }
+
+        #intro .terminal-body .string {
+            color: var(--text-dim);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: var(--accent);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .intro-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .intro-image {
+            background: var(--bg-surface);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .intro-image:hover {
+            border-color: var(--accent);
+        }
+
+        .intro-image svg {
+            width: 60px;
+            height: 60px;
+            fill: var(--text-dim);
+        }
+
+        .intro-image span {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .skill-category {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .skill-category:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .skill-category-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-category-title::before {
+            content: '//';
+            opacity: 0.6;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .project-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 0 20px var(--accent-glow);
+        }
+
+        .project-card.main {
+            grid-column: span 2;
+        }
+
+        .project-image {
+            background: var(--bg-terminal);
+            border-bottom: 1px solid var(--border);
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .project-image svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--text-dim);
+        }
+
+        .project-image span {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .project-card.main .project-image {
+            height: 200px;
+        }
+
+        .project-header {
+            background: var(--bg-terminal);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .project-header .terminal-dot {
+            width: 10px;
+            height: 10px;
+        }
+
+        .project-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 15px;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .project-body {
+            padding: 25px;
+        }
+
+        .project-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-tag {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: var(--accent);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .contact-info h3 {
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .contact-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .contact-item svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--accent);
+        }
+
+        .contact-form {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 16px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-dim);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1200px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            .project-card.main {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .intro-content {
+                grid-template-columns: 1fr;
+            }
+            .intro-image {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                max-height: 100vh;
+                overflow-y: auto;
+                padding: 20px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main-content {
+                margin-left: 0;
+                margin-top: 280px;
+            }
+
+            section {
+                padding: 60px 25px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .profile-box {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .profile-image {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 0;
+                font-size: 18px;
+            }
+
+            .profile-info {
+                flex: 1;
+            }
+
+            .sidebar-section:last-of-type {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="code-bg" id="codeBg"></div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="profile-box">
+                <div class="profile-image" id="profileImage">
+                    <span class="profile-image-placeholder">Add Photo</span>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name">Taha Alkhawtani</div>
+                    <div class="profile-title">Software Engineer</div>
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        <span>Open to Work</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Contact</div>
+                <div class="sidebar-info">
+                    <div class="info-item">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        <span>example@gmail.com</span>
+                    </div>
+                    <div class="info-item">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <span>Medina, Saudi Arabia</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Social</div>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="GitHub">
+                        <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="#" class="social-link" title="X (Twitter)">
+                        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <button class="theme-toggle" id="themeToggle">
+                <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+                <span>Light Mode</span>
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <section id="intro">
+                <h2 class="section-title">Introduction</h2>
+                <div class="intro-content">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">~ whoami</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p><span class="keyword">fn</span> <span class="highlight">main</span>() {</p>
+                            <p style="padding-left: 30px;">
+                                <span class="keyword">let</span> name = <span class="string">"Taha Alkhawtani"</span>;<br>
+                                <span class="keyword">let</span> role = <span class="string">"Software Engineer"</span>;<br>
+                                <span class="keyword">let</span> focus = <span class="string">"Low-level Software & Programming Languages"</span>;
+                            </p>
+                            <p style="padding-left: 30px;">
+                                <span class="keyword">println!</span>(<span class="string">"Building systems that power the digital world."</span>);
+                            </p>
+                            <p>}</p>
+                            <br>
+                            <p>I am a passionate software engineer specializing in <span class="highlight">low-level software development</span> and <span class="highlight">programming language design</span>. With a deep love for systems programming, I craft efficient, performant solutions that form the backbone of modern computing.</p>
+                            <br>
+                            <p>My expertise spans across <span class="keyword">Rust</span>, <span class="keyword">C</span>, <span class="keyword">C++</span>, and <span class="keyword">Assembly</span> — languages that give me fine-grained control over system resources.</p>
+                            <span class="cursor"></span>
+                        </div>
+                    </div>
+                    <div class="intro-image" id="introImage">
+                        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                        <span>Add Image</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills">
+                <h2 class="section-title">Skills</h2>
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                        <span class="terminal-title">skills.rs</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="skills-grid">
+                            <div class="skill-category">
+                                <h3 class="skill-category-title">Languages</h3>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Rust</span>
+                                    <span class="skill-tag">C</span>
+                                    <span class="skill-tag">C++</span>
+                                    <span class="skill-tag">Assembly</span>
+                                    <span class="skill-tag">Go</span>
+                                    <span class="skill-tag">Python</span>
+                                    <span class="skill-tag">TypeScript</span>
+                                    <span class="skill-tag">JavaScript</span>
+                                </div>
+                            </div>
+                            <div class="skill-category">
+                                <h3 class="skill-category-title">Low-Level</h3>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Memory Management</span>
+                                    <span class="skill-tag">Operating Systems</span>
+                                    <span class="skill-tag">Compilers</span>
+                                    <span class="skill-tag">Embedded Systems</span>
+                                    <span class="skill-tag">Performance</span>
+                                </div>
+                            </div>
+                            <div class="skill-category">
+                                <h3 class="skill-category-title">Tools & Tech</h3>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Git</span>
+                                    <span class="skill-tag">Linux</span>
+                                    <span class="skill-tag">Docker</span>
+                                    <span class="skill-tag">LLVM</span>
+                                    <span class="skill-tag">GDB</span>
+                                    <span class="skill-tag">CMake</span>
+                                </div>
+                            </div>
+                            <div class="skill-category">
+                                <h3 class="skill-category-title">Concepts</h3>
+                                <div class="skill-tags">
+                                    <span class="skill-tag">Data Structures</span>
+                                    <span class="skill-tag">Algorithms</span>
+                                    <span class="skill-tag">Concurrency</span>
+                                    <span class="skill-tag">Systems Design</span>
+                                    <span class="skill-tag">Security</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects">
+                <h2 class="section-title">Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card main">
+                        <div class="project-image">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                            <span>Add Image</span>
+                        </div>
+                        <div class="project-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="project-title">main.rs — Featured Project</span>
+                        </div>
+                        <div class="project-body">
+                            <p class="project-description">A high-performance systems programming project focused on low-level optimization and memory safety. Built with Rust for maximum performance and reliability. This project demonstrates advanced compiler-level optimizations and custom memory management strategies.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">Rust</span>
+                                <span class="tech-tag">LLVM</span>
+                                <span class="tech-tag">Assembly</span>
+                                <span class="tech-tag">Performance</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-image">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                        </div>
+                        <div class="project-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="project-title">project_two.rs</span>
+                        </div>
+                        <div class="project-body">
+                            <p class="project-description">A custom programming language implementation featuring a bytecode VM and ahead-of-time compilation.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">Rust</span>
+                                <span class="tech-tag">Compilers</span>
+                                <span class="tech-tag">VM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-image">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                        </div>
+                        <div class="project-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="project-title">project_three.rs</span>
+                        </div>
+                        <div class="project-body">
+                            <p class="project-description">An embedded systems framework for resource-constrained devices with real-time capabilities.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">C</span>
+                                <span class="skill-tag">Rust</span>
+                                <span class="tech-tag">Embedded</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-image">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                        </div>
+                        <div class="project-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="project-title">project_four.rs</span>
+                        </div>
+                        <div class="project-body">
+                            <p class="project-description">A high-performance networking library optimized for low-latency communications.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">Rust</span>
+                                <span class="tech-tag">Networking</span>
+                                <span class="tech-tag">Async</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact">
+                <h2 class="section-title">Contact</h2>
+                <div class="contact-wrapper">
+                    <div class="contact-info">
+                        <h3>Let's Connect</h3>
+                        <p>I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision. Feel free to reach out!</p>
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                <span>example@gmail.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                <span>Medina, Saudi Arabia</span>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label>fn get_name() -> String</label>
+                            <input type="text" id="fullName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>fn get_email() -> String</label>
+                            <input type="email" id="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>fn get_message() -> String</label>
+                            <textarea id="message" placeholder="Enter your message..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">$ ./send_message.sh</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const rustKeywords = [
+            'fn', 'let', 'mut', 'impl', 'struct', 'pub', 'use', 'mod', 'trait', 'enum',
+            'match', 'if', 'else', 'for', 'while', 'loop', 'return', 'self', 'Self',
+            'type', 'where', 'async', 'await', 'move', 'ref', 'const', 'static',
+            'unsafe', 'extern', 'crate', 'super', 'in', 'dyn', 'box', 'Vec', 'Option',
+            'Result', 'String', '&str', 'i32', 'i64', 'u32', 'u64', 'bool', 'char',
+            'println', 'Some', 'None', 'Ok', 'Err', 'unwrap', 'expect', 'panic'
+        ];
+
+        function createCodeBackground() {
+            const codeBg = document.getElementById('codeBg');
+            const lineCount = 20;
+
+            for (let i = 0; i < lineCount; i++) {
+                const line = document.createElement('div');
+                line.className = 'code-line';
+                
+                let code = '';
+                const wordCount = Math.floor(Math.random() * 8) + 3;
+                for (let j = 0; j < wordCount; j++) {
+                    code += rustKeywords[Math.floor(Math.random() * rustKeywords.length)] + ' ';
+                }
+                
+                line.textContent = code.trim();
+                line.style.left = Math.random() * 100 + '%';
+                line.style.animationDelay = Math.random() * 25 + 's';
+                line.style.animationDuration = (20 + Math.random() * 15) + 's';
+                codeBg.appendChild(line);
+            }
+        }
+
+        createCodeBackground();
+
+        const themeToggle = document.getElementById('themeToggle');
+        let isDarkMode = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            themeToggle.querySelector('span').textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
+        });
+
+        const sections = document.querySelectorAll('section');
+        let currentSection = 0;
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionIndex = Array.from(sections).indexOf(entry.target);
+                    currentSection = sectionIndex;
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible');
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        const contactForm = document.getElementById('contactForm');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            console.log('Form submitted:', { fullName, email, message });
+            
+            const submitBtn = contactForm.querySelector('.submit-btn');
+            submitBtn.textContent = '$ message_sent! ✓';
+            submitBtn.style.background = 'var(--accent)';
+            
+            setTimeout(() => {
+                contactForm.reset();
+                submitBtn.textContent = '$ ./send_message.sh';
+            }, 3000);
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        function setProfileImage(src) {
+            const container = document.getElementById('profileImage');
+            container.innerHTML = `<img src="${src}" alt="Profile">`;
+        }
+
+        function setIntroImage(src) {
+            const container = document.getElementById('introImage');
+            container.innerHTML = `<img src="${src}" alt="Intro" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+        }
+
+        function setProjectImage(projectIndex, src) {
+            const images = document.querySelectorAll('.project-image');
+            if (images[projectIndex]) {
+                images[projectIndex].innerHTML = `<img src="${src}" alt="Project" style="width:100%;height:100%;object-fit:cover;">`;
+            }
+        }
+    </script>
+</body>
+</html>
