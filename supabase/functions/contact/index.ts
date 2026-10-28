@@ -13,12 +13,12 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin") ?? "";
   const h = {
     "Access-Control-Allow-Origin": allowed.includes(origin) ? origin : allowed[0],
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Vary": "Origin",
+           "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+           "Access-Control-Allow-Methods": "POST, OPTIONS",
+           "Vary": "Origin",
   };
   const out = (b: unknown, s = 200) =>
-    new Response(JSON.stringify(b), { status: s, headers: { ...h, "Content-Type": "application/json" } });
+  new Response(JSON.stringify(b), { status: s, headers: { ...h, "Content-Type": "application/json" } });
 
   if (req.method === "OPTIONS") return new Response(null, { headers: h });
   if (req.method !== "POST") return out({ error: "method" }, 405);
@@ -26,13 +26,13 @@ Deno.serve(async (req) => {
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return out({ error: "bad request" }, 400); }
-  if (b.website) return out({ ok: true }); // honeypot: pretend success
+  if (b.website) return out({ ok: true });
 
   const name = String(b.name ?? "").replace(/[\r\n]+/g, " ").trim();
   const email = String(b.email ?? "").trim();
   const message = String(b.message ?? "").trim();
   if (name.length < 1 || name.length > 80 || email.length > 120 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ||
-      message.length < 10 || message.length > 3000) return out({ error: "invalid" }, 400);
+    message.length < 10 || message.length > 3000) return out({ error: "invalid" }, 400);
 
   const ip = (req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
 
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
   const ipHash = await sha256(ip);
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count } = await sb.from("messages").select("id", { count: "exact", head: true })
-    .eq("ip_hash", ipHash).gte("created_at", since);
+  .eq("ip_hash", ipHash).gte("created_at", since);
   if ((count ?? 0) >= 3) return out({ error: "rate limited" }, 429);
 
   await sb.from("messages").insert({ name, email, message, ip_hash: ipHash });
@@ -55,10 +55,10 @@ Deno.serve(async (req) => {
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env("RESEND_API_KEY")}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: env("CONTACT_FROM"), to: [env("CONTACT_TO")], reply_to: email,
-      subject: `Portfolio message from ${name}`, text: `From: ${name} <${email}>\n\n${message}`,
-    }),
+                        body: JSON.stringify({
+                          from: env("CONTACT_FROM"), to: [env("CONTACT_TO")], reply_to: email,
+                                             subject: `Portfolio message from ${name}`, text: `From: ${name} <${email}>\n\n${message}`,
+                        }),
   });
   if (!r.ok) { console.error("resend", r.status); return out({ error: "send failed" }, 502); }
   return out({ ok: true });
