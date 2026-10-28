@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | taha-k.dev</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#162125;--surface:#1e2d32;--raised:#263a40;--border:#3b525a;--text:#eef3f4;--text2:#aebfc4;--dim:#7f949a;--acc:#7fd0dc;--selfg:#0f181b}
+@media(prefers-color-scheme:light){:root{--bg:#dbe3e0;--surface:#e7edeb;--raised:#d0dad7;--border:#9fb1b3;--text:#1e2d32;--text2:#3d5258;--dim:#617a80;--acc:#27606f;--selfg:#e9efed}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.6 'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+button,.btn{font:inherit;color:inherit;background:none;border:1px solid var(--text);padding:5px 14px;cursor:pointer;text-decoration:none;display:inline-block;transition:.15s}
+button:hover,.btn:hover{border-color:var(--acc);color:var(--acc)}
+.pri{background:var(--acc);color:var(--selfg);border-color:var(--acc)}.pri:hover{color:var(--selfg);opacity:.9}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:8px 20px;flex-wrap:wrap}
+.top i{color:var(--acc);font-style:normal}.sp{flex:1}#state{color:var(--dim);font-size:12px}
+main{max-width:860px;margin:0 auto;padding:24px 20px}
+.panel{position:relative;border:1px solid var(--border);background:var(--surface);padding:24px 18px 16px;margin:22px 0}
+.panel>h2{position:absolute;top:-12px;left:12px;background:var(--bg);padding:0 8px;font-size:12px;font-weight:500;color:var(--acc)}
+.panel>h2::before{content:"┤ ";color:var(--dim)}.panel>h2::after{content:" ├";color:var(--dim)}
+.f{display:block;margin:12px 0}.f>span{display:block;font-size:12px;color:var(--acc);margin-bottom:3px}
+input,textarea,select{width:100%;font:inherit;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:8px 10px}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);outline:none}
+textarea{min-height:90px;resize:vertical}
+.chk{display:inline-flex;gap:8px;align-items:center;margin:8px 18px 8px 0}.chk input{width:auto}
+details{border:1px solid var(--border);margin:8px 0;background:var(--bg)}
+summary{padding:8px 12px;cursor:pointer}summary:hover{color:var(--acc)}
+.ib{padding:0 14px 12px;border-top:1px solid var(--border)}
+.acts{display:flex;gap:8px;margin-top:14px}.acts .del{margin-left:auto}
+.imgrow{display:flex;gap:8px;align-items:center}.imgrow img{width:56px;height:56px;object-fit:cover;border:1px solid var(--border)}
+.imgrow .btn{white-space:nowrap}
+.login{max-width:380px;margin:12vh auto}
+.msg{margin-top:12px;min-height:20px;border-left:3px solid var(--acc);padding-left:10px;display:none}.msg.on{display:block}
+.hint{color:var(--dim);font-size:12px;margin-top:6px}
+</style>
+</head>
+<body>
+<header class="top"><b>taha<i>@admin</i></b><span id="state"></span><span class="sp"></span>
+  <button class="pri" id="save" hidden>Save changes</button><a class="btn" href="./">View site ↗</a><button id="out" hidden>Log out</button></header>
+<main id="app"></main>
+<script src="config.js"></script>
+<script>
+const CFG=window.CFG||{},U=CFG.SUPABASE_URL,K=CFG.SUPABASE_ANON_KEY;
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let sess=null,data=null,dirty=false;const opened=new Set();
+try{sess=JSON.parse(sessionStorage.getItem("sess"))}catch{}
+const keep=s=>{sess=s;try{s?sessionStorage.setItem("sess",JSON.stringify(s)):sessionStorage.removeItem("sess")}catch{}};
+const say=t=>$("#state").textContent=t;
+
+async function refresh(){if(!sess?.refresh_token)return false;
+  const r=await fetch(`${U}/auth/v1/token?grant_type=refresh_token`,{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:sess.refresh_token})});
+  if(!r.ok){keep(null);return false}keep(await r.json());return true}
+async function api(path,o={},retry=true){
+  const r=await fetch(U+path,{...o,headers:{apikey:K,Authorization:"Bearer "+(sess?.access_token||K),...o.headers}});
+  if(r.status===401&&retry&&sess&&await refresh())return api(path,o,false);return r}
+
+/* ---------- field definitions: add a field here and it appears in the editor ---------- */
+const FIELDS={
+ profile:[["name","Name"],["role","Role"],["location","Location"],["email","Public email"],["photo","Profile photo","image"],["words","Hero words (comma separated)","tags"],["bio","Bio (one paragraph per line)","lines"],["philosophy","Philosophy","area"]],
+ links:[["label","Label"],["url","URL"]],
+ projects:[["id","ID (short, unique, no spaces)"],["title","Title"],["category","Category"],["status","Status","select",["in-progress","completed","experimental"]],["featured","Featured on home","check"],["published","Published","check"],["summary","Summary","area"],["details","Details","area"],["tech","Technologies (comma separated)","tags"],["image","Screenshot","image"],["links","Links (Label | URL, one per line)","links"],["roadmap","Roadmap ([x] done, [ ] todo, one per line)","road"]],
+ skills:[["name","Group name"],["items","Items (comma separated)","tags"]],
+ education:[["title","Degree / title"],["place","School"],["period","Period"]],
+ experience:[["title","Role"],["place","Company"],["period","Period"]]
+};
+const LISTS=[["links","Social links","label"],["projects","Projects","title"],["skills","Skills","name"],["education","Education","title"],["experience","Experience","title"]];
+const NEW={links:{label:"",url:""},projects:{id:"",title:"New project",category:"Tool",status:"experimental",featured:false,published:false,summary:"",details:"",tech:[],image:"",links:[],roadmap:[]},skills:{name:"New group",items:[]},education:{title:"",place:"",period:""},experience:{title:"",place:"",period:""}};
+const P={text:v=>v,area:v=>v,select:v=>v,image:v=>v.trim(),
+ tags:v=>v.split(",").map(s=>s.trim()).filter(Boolean),lines:v=>v.split("\n").map(s=>s.trim()).filter(Boolean),
+ links:v=>v.split("\n").map(l=>{const[a,...b]=l.split("|");return{label:a.trim(),url:b.join("|").trim()}}).filter(l=>l.label&&l.url),
+ road:v=>v.split("\n").map(l=>l.trim()).filter(Boolean).map(l=>({d:/^\[x\]/i.test(l),l:l.replace(/^\[[ xX]?\]\s*/,"")}))};
+
+function ctl(path,[k,label,t="text",opts],v){
+  const d=`data-p="${path?path+".":""}${k}" data-t="${t}"`;let c;
+  if(t==="area")c=`<textarea ${d}>${esc(v)}</textarea>`;
+  else if(t==="lines")c=`<textarea ${d}>${esc((v||[]).join("\n"))}</textarea>`;
+  else if(t==="links")c=`<textarea ${d}>${esc((v||[]).map(l=>l.label+" | "+l.url).join("\n"))}</textarea>`;
+  else if(t==="road")c=`<textarea ${d}>${esc((v||[]).map(r=>(r.d?"[x] ":"[ ] ")+r.l).join("\n"))}</textarea>`;
+  else if(t==="tags")c=`<input ${d} value="${esc((v||[]).join(", "))}">`;
+  else if(t==="select")c=`<select ${d}>${opts.map(o=>`<option${o===v?" selected":""}>${o}</option>`).join("")}</select>`;
+  else if(t==="check")return`<label class="chk"><input type="checkbox" ${d}${v?" checked":""}> ${label}</label>`;
+  else if(t==="image")return`<div class="f"><span>${label}</span><div class="imgrow">${v?`<img src="${esc(v)}" alt="">`:""}<input ${d} value="${esc(v)}" placeholder="https://... or upload"><label class="btn">Upload<input type="file" hidden data-up="${path?path+".":""}${k}" accept="image/png,image/jpeg,image/webp,image/gif"></label></div><div class="hint">PNG, JPG, WebP or GIF, up to 3 MB.</div></div>`;
+  else c=`<input ${d} value="${esc(v)}">`;
+  return`<label class="f"><span>${label}</span>${c}</label>`}
+
+function render(){
+  const prof=`<section class="panel"><h2>profile</h2>${FIELDS.profile.map(f=>ctl("",f,data[f[0]])).join("")}</section>`;
+  const lists=LISTS.map(([key,title,tf])=>{data[key]??=[];
+    const items=data[key].map((it,i)=>{const path=`${key}.${i}`;
+      return`<details data-k="${path}"${opened.has(path)?" open":""}><summary>${esc(it[tf]||"(untitled)")}${key==="projects"&&it.published===false?" · draft":""}</summary><div class="ib">${FIELDS[key].map(f=>ctl(path,f,it[f[0]])).join("")}
+      <div class="acts"><button data-mv="${path}.-1">↑ Up</button><button data-mv="${path}.1">↓ Down</button><button class="del" data-del="${path}">Delete</button></div></div></details>`}).join("")||`<p class="hint">Nothing here yet.</p>`;
+    return`<section class="panel"><h2>${title.toLowerCase()}</h2>${items}<div class="acts"><button data-add="${key}">+ Add</button></div></section>`}).join("");
+  $("#app").innerHTML=prof+lists;
+}
+function setPath(o,path,v){const k=path.split(".");let c=o;for(let i=0;i<k.length-1;i++)c=c[k[i]];c[k.at(-1)]=v}
+function touch(){if(!dirty){dirty=true;say("unsaved changes")}}
+
+document.addEventListener("input",e=>{const t=e.target;if(!t.dataset||!t.dataset.p)return;
+  setPath(data,t.dataset.p,t.type==="checkbox"?t.checked:P[t.dataset.t||"text"](t.value));touch()});
+document.addEventListener("toggle",e=>{const d=e.target;if(d.dataset&&d.dataset.k)d.open?opened.add(d.dataset.k):opened.delete(d.dataset.k)},true);
+document.addEventListener("change",async e=>{const t=e.target;if(t.dataset&&t.dataset.up)await upload(t)});
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-add],[data-del],[data-mv]");if(!b||!data)return;
+  if(b.dataset.add){const k=b.dataset.add;data[k].push(structuredClone(NEW[k]));opened.add(`${k}.${data[k].length-1}`)}
+  else if(b.dataset.del){const[k,i]=b.dataset.del.split(".");if(!confirm("Delete this item?"))return;data[k].splice(+i,1);opened.clear()}
+  else{const[k,i,d]=b.dataset.mv.split(".").map((x,n)=>n?+x:x),j=i+d;if(j<0||j>=data[k].length)return;[data[k][i],data[k][j]]=[data[k][j],data[k][i]];opened.clear();opened.add(`${k}.${j}`)}
+  touch();render()});
+
+async function upload(inp){
+  const f=inp.files[0];if(!f)return;
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(f.type))return alert("Only PNG, JPG, WebP or GIF images are allowed.");
+  if(f.size>3*1024*1024)return alert("Image is larger than 3 MB.");
+  say("uploading...");
+  const ext=f.type.split("/")[1].replace("jpeg","jpg"),name=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const r=await api(`/storage/v1/object/media/${name}`,{method:"POST",headers:{"Content-Type":f.type,"x-upsert":"false"},body:f});
+  if(!r.ok){say("upload failed");return alert("Upload failed. Are you logged in as an admin?")}
+  setPath(data,inp.dataset.up,`${U}/storage/v1/object/public/media/${name}`);touch();render();say("image uploaded, remember to save")}
+
+const okUrl=u=>!u||/^(https?:\/\/|mailto:|\.?\/)/i.test(u);
+function validate(){
+  if(!data.name?.trim())return"Name is required.";
+  if(data.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email))return"Public email looks invalid.";
+  if(!okUrl(data.photo))return"Profile photo URL must start with https:// or ./";
+  for(const l of data.links)if(!okUrl(l.url))return`Bad link URL: ${l.url}`;
+  const ids=new Set();
+  for(const p of data.projects){if(!p.id||!/^[\w-]+$/.test(p.id))return`Project "${p.title}" needs an ID (letters, numbers, - or _).`;
+    if(ids.has(p.id))return`Duplicate project ID: ${p.id}`;ids.add(p.id);
+    if(!okUrl(p.image))return`Bad image URL in ${p.title}`;for(const l of p.links||[])if(!okUrl(l.url))return`Bad link URL in ${p.title}: ${l.url}`}
+  return""}
+async function save(){
+  const bad=validate();if(bad)return alert(bad);
+  say("saving...");
+  const r=await api("/rest/v1/site_content?id=eq.1",{method:"PATCH",headers:{"Content-Type":"application/json",Prefer:"return=representation"},body:JSON.stringify({data,updated_at:new Date().toISOString()})});
+  if(!r.ok){say("save failed");return alert("Save failed ("+r.status+"). Try logging in again.")}
+  if(!(await r.json()).length){say("not authorised");return alert("Not authorised: your user is not in the admins table (see README step 3).")}
+  dirty=false;say("saved ✓ "+new Date().toLocaleTimeString())}
+$("#save").addEventListener("click",save);
+$("#out").addEventListener("click",()=>{if(dirty&&!confirm("Discard unsaved changes?"))return;dirty=false;keep(null);location.reload()});
+addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue=""}});
+addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="s"&&data){e.preventDefault();save()}});
+
+function loginView(note){
+  $("#app").innerHTML=`<form class="panel login" id="lf"><h2>login</h2><label class="f"><span>email</span><input name="email" type="email" required autocomplete="username"></label>
+  <label class="f"><span>password</span><input name="password" type="password" required autocomplete="current-password"></label>
+  <button class="pri" type="submit">Log in</button><div class="msg${note?" on":""}" id="lm" role="alert">${esc(note||"")}</div></form>`;
+  $("#lf").addEventListener("submit",async e=>{e.preventDefault();const f=new FormData(e.target),m=$("#lm");m.classList.remove("on");
+    const r=await fetch(`${U}/auth/v1/token?grant_type=password`,{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({email:f.get("email"),password:f.get("password")})});
+    if(!r.ok){m.textContent="Invalid email or password.";m.classList.add("on");return}
+    keep(await r.json());boot()})}
+async function boot(){
+  if(!U||!K){$("#app").innerHTML=`<section class="panel"><h2>setup needed</h2><p>Fill in <b>config.js</b> with your Supabase URL and anon key. See README.md.</p></section>`;return}
+  if(!sess)return loginView();
+  const r=await api("/rest/v1/site_content?id=eq.1&select=data");
+  if(r.status===401||r.status===403){keep(null);return loginView("Session expired. Please log in again.")}
+  const j=r.ok?await r.json():[];data=j[0]?.data;
+  if(!data){$("#app").innerHTML=`<section class="panel"><h2>error</h2><p>No content found. Run supabase/schema.sql first (README step 2).</p></section>`;return}
+  $("#save").hidden=false;$("#out").hidden=false;say("loaded");render()}
+boot();
+</script>
+</body>
+</html>
